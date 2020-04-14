@@ -3,7 +3,6 @@
 
 -- Configuration
 local rednetProtocol = 'cow.reactor'
-local rednetHostname = 'cow.reactor.mon1'
 local modemLocation = 'top'
 local monitorLocation = 'left'
 
@@ -60,7 +59,7 @@ end
 
 -- Main
 rednet.open(modemLocation)
-rednet.host(rednetProtocol, rednetHostname)
+rednet.host(rednetProtocol, rednetProtocol .. '.' .. os.getComputerLabel())
 
 while true do
   local sender, t, protocol = rednet.receive(rednetProtocol)
@@ -78,6 +77,12 @@ while true do
   	(t['isActive'] and 'Online' or 'Offline') .. ' (' .. round(t['energyPerTick']) .. ' RF/t)',
   	t['isActive'] and colors.green or colors.red
   )
+
+  -- drawLabel(
+  --   'Change: ',
+  --   t['energyChangePerTick'] .. ' RF/t',
+  --   (t['energyChangePerTick'] >= 0) and colors.green or colors.red
+  -- )
 
   drawLabeledBar(
   	'Energy: ',

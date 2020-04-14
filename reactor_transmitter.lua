@@ -7,7 +7,6 @@ local rednetHostname = 'cow.reactor.host'
 local modemLocation = 'right'
 local reactorLocation = 'back'
 local autoToggle = true
-local maxEnergy = 1e7
 local activateThreshold = 0.50
 local deactivateThreshold = 0.95
 local updateFrequency = 5
@@ -16,7 +15,7 @@ local reactor = peripheral.wrap(reactorLocation)
 
 -- Functions
 function checkEnergyThreshold()
-  local energyPercentage = reactor.getEnergyStored() / maxEnergy
+  local energyPercentage = reactor.getEnergyStored() / reactor.getEnergyStats()['energyCapacity']
   local isActive = reactor.getActive()
 
   if not isActive and energyPercentage <= activateThreshold then
@@ -32,6 +31,8 @@ end
 rednet.open(modemLocation)
 rednet.host(rednetProtocol, rednetHostname)
 
+storedEnergyLast = reactor.getEnergyStored()
+
 while true do
   if autoToggle then
     checkEnergyThreshold()
@@ -40,19 +41,24 @@ while true do
   t = {}
   t['isActive'] = reactor.getActive()
 
-  t['energyPerTick'] = reactor.getEnergyProducedLastTick()
-  t['storedEnergy'] = math.floor(reactor.getEnergyStored())
-  t['energyMax'] = maxEnergy
-  t['energyPercentage'] = t['storedEnergy'] / maxEnergy
+  local energyStats = reactor.getEnergyStats()
+
+  t['energyPerTick'] = energyStats['energyProducedLastTick']
+  t['storedEnergy'] = energyStats['energyStored']
+  t['energyMax'] = energyStats['energyCapacity']
+  t['energyPercentage'] = t['storedEnergy'] / t['energyMax']
+  t['energyChangePerTick'] = (t['storedEnergy'] - storedEnergyLast) / (updateFrequency * 20)
 
   t['fuelUsedPerTick'] = reactor.getFuelConsumedLastTick()
-  t['storedFuel'] = math.floor(reactor.getFuelAmount())
+  t['storedFuel'] = reactor.getFuelAmount()
   t['fuelMax'] = reactor.getFuelAmountMax()
   t['fuelPercentage'] = t['storedFuel'] / t['fuelMax']
   t['fuelReactivity'] = reactor.getFuelReactivity() / 100
 
   t['caseTemp'] = reactor.getCasingTemperature()
   t['coreTemp'] = reactor.getFuelTemperature()
+
+  storedEnergyLast = reactor.getEnergyStored()
 
   rednet.broadcast(t, rednetProtocol)
   os.sleep(updateFrequency)
