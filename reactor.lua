@@ -80,9 +80,26 @@ function updateScreen()
   local fuelPercentage = storedFuel / fuelMax
 
   drawCenteredLabel('Reactor Stats')
-  drawLabel('Status: ', isActive and 'Online' or 'Offline', isActive and colors.green or colors.red)
-  drawLabeledBar('Energy: ', storedEnergy .. ' RF (' .. math.floor(energyPercentage * 100) .. '%)', energyPercentage, colors.gray, colors.green)
-  drawLabeledBar('Fuel:   ', storedFuel .. '/' .. fuelMax .. ' (' .. math.floor(fuelPercentage * 100) .. '%)', fuelPercentage, colors.gray, colors.yellow)
+
+  drawLabel('Status: ',
+    isActive and 'Online' or 'Offline',
+    isActive and colors.green or colors.red
+  )
+
+  drawLabeledBar('Energy: ',
+    storedEnergy .. ' RF (' .. math.floor(energyPercentage * 100) .. '%)',
+    energyPercentage,
+    colors.gray,
+    colors.green
+  )
+
+  drawLabeledBar(
+    'Fuel:   ',
+    storedFuel .. '/' .. fuelMax .. ' (' .. math.floor(fuelPercentage * 100) .. '%)',
+    fuelPercentage,
+    colors.gray,
+    colors.yellow
+  )
 end
 
 while true do
